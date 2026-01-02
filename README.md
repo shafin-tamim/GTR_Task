@@ -71,7 +71,7 @@ A smart assistant system that:
 
 ```bash
 conda create -n samsung_ai python=3.10 -y
-conda create -n samsung_ai python=3.10 -y
+conda activate samsung_ai 
 pip install -r requirements.txt
 ```
 
