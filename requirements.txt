@@ -1,0 +1,9 @@
+yfinance
+pandas
+numpy
+fastapi
+uvicorn
+psycopg2-binary
+requests
+beautifulsoup4
+pydantic
