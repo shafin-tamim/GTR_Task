@@ -7,9 +7,9 @@ class TradingStrategy:
         self.symbol = symbol
         self.start_date = start_date
         self.end_date = end_date
-        self.capital = capital
+        self.capital = float(capital)
 
-        self.cash = capital
+        self.cash = float(capital)
         self.position = 0
         self.trades = []
 
@@ -23,17 +23,13 @@ class TradingStrategy:
         return df
 
     def clean_data(self, df):
-        # Remove duplicate rows
         df = df[~df.index.duplicated(keep="first")]
-
-        # Handle NaN values
         df = df.ffill()
-
         return df
 
     def add_moving_averages(self, df):
-        df["MA50"] = df["Close"].rolling(window=50).mean()
-        df["MA200"] = df["Close"].rolling(window=200).mean()
+        df["MA50"] = df["Close"].rolling(50).mean()
+        df["MA200"] = df["Close"].rolling(200).mean()
         return df
 
     def run_strategy(self):
@@ -42,13 +38,13 @@ class TradingStrategy:
         df = self.add_moving_averages(df)
 
         for i in range(1, len(df)):
-            # BUY condition (Golden Cross)
+            # BUY (Golden Cross)
             if (
                 df["MA50"].iloc[i] > df["MA200"].iloc[i]
                 and df["MA50"].iloc[i - 1] <= df["MA200"].iloc[i - 1]
                 and self.position == 0
             ):
-                buy_price = df["Close"].iloc[i]
+                buy_price = float(df["Close"].iloc[i])
                 self.position = int(self.cash // buy_price)
 
                 if self.position > 0:
@@ -57,22 +53,22 @@ class TradingStrategy:
                         ("BUY", df.index[i].date(), round(buy_price, 2))
                     )
 
-            # SELL condition (Death Cross)
+            # SELL (Death Cross)
             elif (
                 df["MA50"].iloc[i] < df["MA200"].iloc[i]
                 and df["MA50"].iloc[i - 1] >= df["MA200"].iloc[i - 1]
                 and self.position > 0
             ):
-                sell_price = df["Close"].iloc[i]
+                sell_price = float(df["Close"].iloc[i])
                 self.cash += self.position * sell_price
                 self.trades.append(
                     ("SELL", df.index[i].date(), round(sell_price, 2))
                 )
                 self.position = 0
 
-        # Force close on last day
+        # Force Sell on last day
         if self.position > 0:
-            final_price = df["Close"].iloc[-1]
+            final_price = float(df["Close"].iloc[-1])
             self.cash += self.position * final_price
             self.trades.append(
                 ("FORCE SELL", df.index[-1].date(), round(final_price, 2))
